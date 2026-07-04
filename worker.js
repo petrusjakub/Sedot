@@ -647,8 +647,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
 // Cobalt API endpoints - primary and fallbacks
 const COBALT_API_ENDPOINTS = [
   'https://api.cobalt.tools',
-  'https://cobalt-api.rian.id',
-  'https://cobalt.api.timelessnesses.me'
+  'https://cobalt-backend.canine.tools',
+  'https://cobalt-api.hyper.lol'
 ];
 
 function corsHeaders() {
@@ -720,7 +720,8 @@ export default {
       // Build headers for Cobalt API request
       const cobaltHeaders = {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
       };
 
       // Add Authorization header if API key is configured
@@ -771,7 +772,7 @@ export default {
       if (!cobaltResponse) {
         return new Response(JSON.stringify({
           status: 'error',
-          error: 'All API endpoints failed: ' + (lastError ? lastError.message : 'unknown error')
+          error: 'Semua server sedang tidak tersedia. Coba lagi nanti.'
         }), {
           status: 502,
           headers: {
