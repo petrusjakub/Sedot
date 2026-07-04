@@ -381,8 +381,9 @@
                 <span class="platform-badge">&#9654; YouTube</span>
                 <span class="platform-badge">&#128204; Pinterest</span>
                 <span class="platform-badge">&#128172; Threads</span>
-                <span class="platform-badge">&#128722; Shopee</span>
+                <span class="platform-badge">&#128722; Shopee*</span>
             </div>
+            <p style="font-size:0.65rem;color:#64748b;margin-top:8px;">*Shopee: dukungan eksperimental, mungkin tidak tersedia di semua konten</p>
         </div>
     </div>
 
@@ -408,13 +409,14 @@
         function buildRequestBody(url) {
             const downloadMode = document.getElementById('downloadFormat').value;
             const videoQuality = document.getElementById('videoQuality').value;
+            const noWatermark = document.getElementById('noWatermark').checked;
 
             return {
                 url: url,
                 downloadMode: downloadMode,
                 videoQuality: videoQuality,
                 filenameStyle: 'basic',
-                tiktokFullAudio: true,
+                tiktokFullAudio: noWatermark,
                 tiktokH265: false,
                 disableMetadata: false
             };
@@ -435,43 +437,92 @@
         function showSingleDownload(url, label) {
             const results = document.getElementById('results');
             results.classList.remove('hidden');
-            results.innerHTML = `
-                <a href="${url}" target="_blank" rel="noopener noreferrer" class="single-download">
-                    &#128190; ${label || 'Klik untuk Download'}
-                </a>
-            `;
+            results.innerHTML = '';
+
+            var link = document.createElement('a');
+            // Validate URL protocol to prevent javascript: URIs
+            if (url && /^https?:\/\//i.test(url)) {
+                link.setAttribute('href', url);
+            } else {
+                link.setAttribute('href', '#');
+            }
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+            link.className = 'single-download';
+            link.textContent = '\u{1F4BE} ' + (label || 'Klik untuk Download');
+            results.appendChild(link);
         }
 
         function showPickerResults(pickerItems) {
             const results = document.getElementById('results');
             results.classList.remove('hidden');
+            results.innerHTML = '';
 
-            let html = '<div class="results-title">Ditemukan ' + pickerItems.length + ' file</div>';
+            var title = document.createElement('div');
+            title.className = 'results-title';
+            title.textContent = 'Ditemukan ' + pickerItems.length + ' file';
+            results.appendChild(title);
 
             pickerItems.forEach(function(item, index) {
-                const typeLabel = item.type === 'photo' ? 'Foto' : 'Video';
-                const thumbHtml = item.thumb
-                    ? '<img src="' + item.thumb + '" alt="Thumbnail" class="result-thumb">'
-                    : '<div class="result-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem;">' + (item.type === 'photo' ? '&#128247;' : '&#127916;') + '</div>';
+                var typeLabel = item.type === 'photo' ? 'Foto' : 'Video';
 
-                html += `
-                    <div class="result-item">
-                        ${thumbHtml}
-                        <div class="result-info">
-                            <span class="type-badge">${typeLabel}</span>
-                            <p>File ${index + 1} - ${typeLabel}</p>
-                        </div>
-                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="result-download-btn">
-                            &#128190; Unduh
-                        </a>
-                    </div>
-                `;
+                var resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+
+                // Thumbnail - use DOM APIs to prevent XSS
+                if (item.thumb) {
+                    var img = document.createElement('img');
+                    img.setAttribute('alt', 'Thumbnail');
+                    img.className = 'result-thumb';
+                    // Validate URL protocol to prevent javascript: URIs
+                    if (/^https?:\/\//i.test(item.thumb)) {
+                        img.setAttribute('src', item.thumb);
+                    }
+                    resultItem.appendChild(img);
+                } else {
+                    var placeholder = document.createElement('div');
+                    placeholder.className = 'result-thumb';
+                    placeholder.style.display = 'flex';
+                    placeholder.style.alignItems = 'center';
+                    placeholder.style.justifyContent = 'center';
+                    placeholder.style.fontSize = '1.5rem';
+                    placeholder.textContent = item.type === 'photo' ? '\u{1F4F7}' : '\u{1F3AC}';
+                    resultItem.appendChild(placeholder);
+                }
+
+                // Info section
+                var info = document.createElement('div');
+                info.className = 'result-info';
+
+                var badge = document.createElement('span');
+                badge.className = 'type-badge';
+                badge.textContent = typeLabel;
+                info.appendChild(badge);
+
+                var desc = document.createElement('p');
+                desc.textContent = 'File ' + (index + 1) + ' - ' + typeLabel;
+                info.appendChild(desc);
+
+                resultItem.appendChild(info);
+
+                // Download button - validate URL protocol
+                var downloadBtn = document.createElement('a');
+                if (item.url && /^https?:\/\//i.test(item.url)) {
+                    downloadBtn.setAttribute('href', item.url);
+                } else {
+                    downloadBtn.setAttribute('href', '#');
+                }
+                downloadBtn.setAttribute('target', '_blank');
+                downloadBtn.setAttribute('rel', 'noopener noreferrer');
+                downloadBtn.className = 'result-download-btn';
+                downloadBtn.textContent = '\u{1F4BE} Unduh';
+                resultItem.appendChild(downloadBtn);
+
+                results.appendChild(resultItem);
             });
-
-            results.innerHTML = html;
         }
 
-        function getErrorMessage(errorCode) {
+        function getErrorMessage(errorCode, platform) {
             const errorMessages = {
                 'error.api.link.invalid': 'Link tidak valid. Pastikan URL yang dimasukkan benar.',
                 'error.api.fetch.fail': 'Gagal mengambil konten. Coba lagi nanti.',
@@ -481,7 +532,11 @@
                 'error.api.fetch.empty': 'Tidak ada konten yang bisa diunduh dari link ini.',
                 'error.api.service.disabled': 'Layanan untuk platform ini sedang tidak tersedia.'
             };
-            return errorMessages[errorCode] || 'Terjadi kesalahan: ' + (errorCode || 'tidak diketahui');
+            var msg = errorMessages[errorCode] || 'Terjadi kesalahan: ' + (errorCode || 'tidak diketahui');
+            if (platform === 'Shopee') {
+                msg += ' (Shopee mungkin tidak didukung sepenuhnya oleh server. Coba platform lain.)';
+            }
+            return msg;
         }
 
         async function processDownload() {
@@ -503,7 +558,12 @@
 
             btn.disabled = true;
             btn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
-            showStatus('Mengekstrak konten dari ' + platform + ', mohon tunggu...', '');
+
+            if (platform === 'Shopee') {
+                showStatus('<span class="loading-spinner"></span> Mencoba mengekstrak dari Shopee (eksperimental, mungkin tidak didukung)...', '');
+            } else {
+                showStatus('Mengekstrak konten dari ' + platform + ', mohon tunggu...', '');
+            }
 
             try {
                 const requestBody = buildRequestBody(url);
@@ -521,7 +581,7 @@
                 const data = await response.json();
 
                 if (data.status === 'error') {
-                    const errorMsg = getErrorMessage(data.error);
+                    const errorMsg = getErrorMessage(data.error, platform);
                     showStatus('&#10060; ' + errorMsg, 'error');
                     return;
                 }

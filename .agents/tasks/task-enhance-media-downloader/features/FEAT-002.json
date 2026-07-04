@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-002",
+  "type": "fix",
+  "description": "Address review issues: disconnect no-watermark toggle fix, XSS prevention in picker rendering, origin restriction in worker, Shopee graceful handling, and Cobalt API auth support.",
+  "status": "in_progress",
+  "steps": [
+    "Fix no-watermark toggle: wire the checkbox state into buildRequestBody so it affects tiktokFullAudio parameter",
+    "Fix XSS in picker thumbnails: replace innerHTML string concatenation with DOM API methods (createElement, setAttribute)",
+    "Add origin restriction to worker.js: check Origin/Referer header against an allowlist, return 403 for unknown origins",
+    "Add graceful Shopee handling: detect Shopee URLs and show a note that support is experimental",
+    "Add Cobalt API auth: read env.COBALT_API_KEY and attach Authorization header if present"
+  ],
+  "acceptance_criteria": [
+    "noWatermark checkbox state is read in buildRequestBody and affects request parameters",
+    "Picker results are rendered using DOM APIs (createElement/setAttribute) not innerHTML with string concatenation",
+    "Worker checks origin/referer and rejects requests from unknown origins",
+    "Shopee URLs display a note about experimental support before attempting download",
+    "Worker uses env.COBALT_API_KEY for Authorization header when available"
+  ],
+  "verification": [
+    "Verify buildRequestBody reads noWatermark checkbox",
+    "Verify showPickerResults uses createElement instead of innerHTML string building",
+    "Verify worker.js has origin checking logic",
+    "Verify Shopee platform detection includes experimental note handling",
+    "Verify worker.js reads env.COBALT_API_KEY"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}
