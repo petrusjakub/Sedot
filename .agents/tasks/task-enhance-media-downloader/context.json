@@ -1,0 +1,16 @@
+{
+  "project_type": "Static HTML frontend + Cloudflare Worker backend (social media downloader)",
+  "language": "HTML/CSS/JavaScript",
+  "build_system": "None - single HTML file, no build tools",
+  "test_framework": "None - static HTML file, manual browser testing",
+  "build_command": null,
+  "test_command": null,
+  "verification_instructions": "Open index.html in browser, verify UI renders correctly, verify all platform icons/labels are shown, verify download format selector works, verify worker.js contains correct Cobalt API integration",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "No setup needed - pure static HTML file",
+  "environment_constraints": "INTEGRATIONS_ONLY network mode - proxy blocks most external sites. Only GitHub integration is accessible. Cannot test live API calls. Validation is structural/AST-based only.",
+  "contribution_requirements": "No formal contribution guide. Single-file project on main branch.",
+  "key_patterns": "Current app: single index.html with inline CSS and JS. Uses fetch POST to Cloudflare Worker URL. Worker proxies to Cobalt API. Response format expects {url, picker[], status, text}. Cobalt API supports: downloadMode (auto/audio/mute), videoQuality, filenameStyle, twitterGif, tiktokFullAudio, tiktokH265, disableMetadata.",
+  "relevant_files": ["index.html"],
+  "directory_structure": "Root contains only index.html and .git/"
+}

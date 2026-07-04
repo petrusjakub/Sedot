@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Complete rewrite of index.html to support multi-format downloads (video, MP3, images) from all supported social media platforms (TikTok, Instagram, Facebook, YouTube, Pinterest, Threads, Shopee) with no-watermark option. Also create worker.js with the Cloudflare Worker code that properly proxies requests to Cobalt API with format/quality parameters.",
+  "status": "in_progress",
+  "steps": [
+    "Rewrite index.html with enhanced UI that includes: (1) URL input field, (2) Download format selector (Video/MP3 Audio/Images), (3) Video quality selector (highest/1080p/720p/480p/360p), (4) No-watermark toggle (enabled by default), (5) Platform support display showing all 7 platforms: TikTok, Instagram, Facebook, YouTube, Pinterest, Threads, Shopee",
+    "Add a results/download section in the UI that can display: (1) Single download button for direct downloads, (2) Multiple download options when picker response is returned (e.g., Instagram carousel, multiple quality options), (3) Separate video/audio/image download buttons when applicable",
+    "Implement the JavaScript download logic that: (1) Detects platform from URL (tiktok.com, instagram.com, facebook.com, youtube.com, pinterest.com, threads.net, shopee.co.id/shopee.com), (2) Sends POST to Worker with parameters: {url, downloadMode, videoQuality, filenameStyle, tiktokFullAudio, tiktokH265, disableMetadata}, (3) downloadMode maps to user selection: 'auto' for video, 'audio' for MP3, 'mute' for video without audio, (4) Handles response types: 'redirect' (direct URL), 'tunnel' (stream URL), 'picker' (multiple items)",
+    "Handle picker responses properly: when Cobalt returns picker array (Instagram carousels, TikTok slideshows), display all items as individual download buttons with thumbnails if available. Each picker item has {type, url, thumb} where type can be 'video' or 'photo'",
+    "Style the page with modern dark theme matching current design (emerald/tosca gradient theme), make it fully responsive for mobile, add loading states and error handling with user-friendly Indonesian language messages",
+    "Create worker.js file containing Cloudflare Worker code that: (1) Handles CORS headers for cross-origin requests, (2) Accepts POST with {url, downloadMode, videoQuality, filenameStyle, tiktokFullAudio, tiktokH265, disableMetadata}, (3) Forwards request to Cobalt API (https://api.cobalt.tools/) with proper headers including Accept: application/json and Content-Type: application/json, (4) Returns Cobalt response to frontend, (5) Handles errors gracefully"
+  ],
+  "acceptance_criteria": [
+    "index.html contains a working UI with URL input, format selector (Video/MP3/Images), quality selector, and no-watermark toggle",
+    "All 7 platforms are listed in the UI: TikTok, Instagram, Facebook, YouTube, Pinterest, Threads, Shopee",
+    "JavaScript correctly builds request body with downloadMode based on user selection (auto/audio/mute)",
+    "Picker responses are handled to show multiple download options (not just first item)",
+    "worker.js contains complete Cloudflare Worker code with CORS handling and Cobalt API proxy logic",
+    "UI is responsive and uses the existing dark emerald/tosca theme",
+    "No-watermark is the default behavior (Cobalt API removes watermarks by default when no specific parameter blocks it)",
+    "Error messages are displayed in Indonesian language"
+  ],
+  "verification": [
+    "Verify index.html is valid HTML by checking structure",
+    "Verify worker.js contains addEventListener('fetch') or export default with fetch handler",
+    "Verify the download function sends correct parameters to the worker",
+    "Verify picker handling logic displays multiple items",
+    "Verify all 7 platforms are mentioned in the UI"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
