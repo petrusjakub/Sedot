@@ -11,6 +11,7 @@
             --ruby: #E0115F;
             --dark-bg: #0f172a;
             --card-bg: rgba(255, 255, 255, 0.05);
+            --border-glow: rgba(80, 200, 120, 0.2);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body {
@@ -25,11 +26,11 @@
         .container {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(80, 200, 120, 0.2);
+            border: 1px solid var(--border-glow);
             padding: 2rem;
             border-radius: 20px;
             width: 100%;
-            max-width: 500px;
+            max-width: 560px;
             box-shadow: 0 10px 30px rgba(0, 128, 128, 0.2);
         }
         .logo {
@@ -41,11 +42,13 @@
             background: linear-gradient(90deg, var(--emerald), var(--tosca));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 800;
         }
         .logo p { color: #94a3b8; font-size: 0.9rem; margin-top: 5px; }
-        .input-group { margin-bottom: 1.5rem; }
-        input {
+
+        .input-group { margin-bottom: 1.2rem; }
+        input[type="text"] {
             width: 100%;
             padding: 15px;
             background: rgba(0, 0, 0, 0.3);
@@ -55,12 +58,108 @@
             font-size: 1rem;
             transition: all 0.3s;
         }
-        input:focus {
+        input[type="text"]:focus {
             outline: none;
             border-color: var(--emerald);
             box-shadow: 0 0 15px rgba(80, 200, 120, 0.3);
         }
-        button {
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 1.2rem;
+        }
+        .option-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .option-group label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        select {
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(80, 200, 120, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 35px;
+        }
+        select:focus {
+            outline: none;
+            border-color: var(--emerald);
+            box-shadow: 0 0 10px rgba(80, 200, 120, 0.2);
+        }
+        select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(80, 200, 120, 0.15);
+        }
+        .toggle-group span {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            cursor: pointer;
+        }
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle input:checked + .toggle-slider {
+            background: linear-gradient(90deg, var(--tosca), var(--emerald));
+        }
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        .btn-download {
             width: 100%;
             padding: 15px;
             background: linear-gradient(90deg, var(--tosca), var(--emerald));
@@ -72,118 +171,468 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(80, 200, 120, 0.4); }
-        button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(80, 200, 120, 0.4); }
+        .btn-download:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
         .status {
-            margin-top: 1.5rem;
+            margin-top: 1.2rem;
             text-align: center;
             min-height: 24px;
             font-weight: 500;
         }
         .error { color: var(--ruby); }
         .success { color: var(--emerald); }
-        .download-link {
+
+        .results {
+            margin-top: 1.2rem;
+        }
+        .results-title {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(80, 200, 120, 0.15);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+        .result-item:hover {
+            border-color: rgba(80, 200, 120, 0.4);
+        }
+        .result-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+        .result-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .result-info .type-badge {
             display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(80, 200, 120, 0.2);
+            color: var(--emerald);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .result-info p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .result-download-btn {
+            padding: 8px 16px;
             background: var(--ruby);
             color: white;
             text-decoration: none;
             border-radius: 8px;
             font-weight: bold;
-            transition: background 0.2s;
+            font-size: 0.85rem;
+            transition: background 0.2s, transform 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
-        .download-link:hover { background: #c00f4f; }
-        .platforms {
-            margin-top: 2rem;
+        .result-download-btn:hover { background: #c00f4f; transform: translateY(-1px); }
+
+        .single-download {
+            display: block;
             text-align: center;
-            font-size: 0.8rem;
-            color: #64748b;
-            line-height: 1.6;
+            margin-top: 10px;
+            padding: 12px 20px;
+            background: var(--ruby);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: background 0.2s, transform 0.2s;
         }
+        .single-download:hover { background: #c00f4f; transform: translateY(-1px); }
+
+        .platforms {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        .platforms-title {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .platform-icons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+        .platform-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(80, 200, 120, 0.1);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            transition: border-color 0.3s;
+        }
+        .platform-badge:hover {
+            border-color: rgba(80, 200, 120, 0.4);
+            color: #e2e8f0;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: var(--emerald);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none; }
+
         @media (max-width: 480px) {
             .container { padding: 1.5rem; }
             .logo h1 { font-size: 1.5rem; }
+            .options-grid { grid-template-columns: 1fr; }
+            .result-item { flex-direction: column; text-align: center; }
+            .result-thumb { width: 80px; height: 80px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">
-            <h1>⚡ MAGIC DOWNLOADER</h1>
-            <p>HD Quality • No Watermark • Multi-Platform</p>
+            <h1>&#9889; MAGIC DOWNLOADER</h1>
+            <p>HD Quality &bull; Tanpa Watermark &bull; Multi-Platform</p>
         </div>
+
         <div class="input-group">
-            <input type="text" id="videoUrl" placeholder="Paste link video di sini (TikTok, IG, YT, dll)...">
+            <input type="text" id="videoUrl" placeholder="Tempel link video/foto di sini (TikTok, IG, YT, dll)...">
         </div>
-        <button id="downloadBtn" onclick="processDownload()">Download Sekarang</button>
+
+        <div class="options-grid">
+            <div class="option-group">
+                <label>Format Download</label>
+                <select id="downloadFormat">
+                    <option value="auto">Video</option>
+                    <option value="audio">MP3 / Audio</option>
+                    <option value="mute">Video Tanpa Suara</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label>Kualitas Video</label>
+                <select id="videoQuality">
+                    <option value="max">Tertinggi</option>
+                    <option value="1080">1080p</option>
+                    <option value="720">720p</option>
+                    <option value="480">480p</option>
+                    <option value="360">360p</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="toggle-group">
+            <span>&#10003; Tanpa Watermark</span>
+            <label class="toggle">
+                <input type="checkbox" id="noWatermark" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <button class="btn-download" id="downloadBtn" onclick="processDownload()">
+            Download Sekarang
+        </button>
+
         <div id="status" class="status"></div>
+
+        <div id="results" class="results hidden"></div>
+
         <div class="platforms">
-            Support: TikTok • Instagram • Facebook • YouTube • Pinterest • Shopee
+            <div class="platforms-title">Platform yang Didukung</div>
+            <div class="platform-icons">
+                <span class="platform-badge">&#127916; TikTok</span>
+                <span class="platform-badge">&#128247; Instagram</span>
+                <span class="platform-badge">&#128266; Facebook</span>
+                <span class="platform-badge">&#9654; YouTube</span>
+                <span class="platform-badge">&#128204; Pinterest</span>
+                <span class="platform-badge">&#128172; Threads</span>
+                <span class="platform-badge">&#128722; Shopee*</span>
+            </div>
+            <p style="font-size:0.65rem;color:#64748b;margin-top:8px;">*Shopee: dukungan eksperimental, mungkin tidak tersedia di semua konten</p>
         </div>
     </div>
 
     <script>
-        // GANTI URL DI BAWAH INI DENGAN URL CLOUDFLARE WORKER ANDA (Langkah 4)
-        const WORKER_URL = 'https://video-proxy-api.petrusjakub.workers.dev/'; 
+        const WORKER_URL = 'https://video-proxy-api.petrusjakub.workers.dev/';
+
+        function detectPlatform(url) {
+            const platforms = [
+                { name: 'TikTok', pattern: /tiktok\.com/i },
+                { name: 'Instagram', pattern: /instagram\.com/i },
+                { name: 'Facebook', pattern: /(facebook\.com|fb\.watch)/i },
+                { name: 'YouTube', pattern: /(youtube\.com|youtu\.be)/i },
+                { name: 'Pinterest', pattern: /(pinterest\.com|pin\.it)/i },
+                { name: 'Threads', pattern: /threads\.net/i },
+                { name: 'Shopee', pattern: /(shopee\.co\.id|shopee\.com)/i }
+            ];
+            for (const p of platforms) {
+                if (p.pattern.test(url)) return p.name;
+            }
+            return null;
+        }
+
+        function buildRequestBody(url) {
+            const downloadMode = document.getElementById('downloadFormat').value;
+            const videoQuality = document.getElementById('videoQuality').value;
+            const noWatermark = document.getElementById('noWatermark').checked;
+
+            return {
+                url: url,
+                downloadMode: downloadMode,
+                videoQuality: videoQuality,
+                filenameStyle: 'basic',
+                tiktokFullAudio: noWatermark,
+                tiktokH265: false,
+                disableMetadata: false
+            };
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.className = 'status ' + (type || '');
+            status.innerHTML = message;
+        }
+
+        function clearResults() {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+            results.classList.add('hidden');
+        }
+
+        function showSingleDownload(url, label) {
+            const results = document.getElementById('results');
+            results.classList.remove('hidden');
+            results.innerHTML = '';
+
+            var link = document.createElement('a');
+            // Validate URL protocol to prevent javascript: URIs
+            if (url && /^https?:\/\//i.test(url)) {
+                link.setAttribute('href', url);
+            } else {
+                link.setAttribute('href', '#');
+            }
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+            link.className = 'single-download';
+            link.textContent = '\u{1F4BE} ' + (label || 'Klik untuk Download');
+            results.appendChild(link);
+        }
+
+        function showPickerResults(pickerItems) {
+            const results = document.getElementById('results');
+            results.classList.remove('hidden');
+            results.innerHTML = '';
+
+            var title = document.createElement('div');
+            title.className = 'results-title';
+            title.textContent = 'Ditemukan ' + pickerItems.length + ' file';
+            results.appendChild(title);
+
+            pickerItems.forEach(function(item, index) {
+                var typeLabel = item.type === 'photo' ? 'Foto' : 'Video';
+
+                var resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+
+                // Thumbnail - use DOM APIs to prevent XSS
+                if (item.thumb) {
+                    var img = document.createElement('img');
+                    img.setAttribute('alt', 'Thumbnail');
+                    img.className = 'result-thumb';
+                    // Validate URL protocol to prevent javascript: URIs
+                    if (/^https?:\/\//i.test(item.thumb)) {
+                        img.setAttribute('src', item.thumb);
+                    }
+                    resultItem.appendChild(img);
+                } else {
+                    var placeholder = document.createElement('div');
+                    placeholder.className = 'result-thumb';
+                    placeholder.style.display = 'flex';
+                    placeholder.style.alignItems = 'center';
+                    placeholder.style.justifyContent = 'center';
+                    placeholder.style.fontSize = '1.5rem';
+                    placeholder.textContent = item.type === 'photo' ? '\u{1F4F7}' : '\u{1F3AC}';
+                    resultItem.appendChild(placeholder);
+                }
+
+                // Info section
+                var info = document.createElement('div');
+                info.className = 'result-info';
+
+                var badge = document.createElement('span');
+                badge.className = 'type-badge';
+                badge.textContent = typeLabel;
+                info.appendChild(badge);
+
+                var desc = document.createElement('p');
+                desc.textContent = 'File ' + (index + 1) + ' - ' + typeLabel;
+                info.appendChild(desc);
+
+                resultItem.appendChild(info);
+
+                // Download button - validate URL protocol
+                var downloadBtn = document.createElement('a');
+                if (item.url && /^https?:\/\//i.test(item.url)) {
+                    downloadBtn.setAttribute('href', item.url);
+                } else {
+                    downloadBtn.setAttribute('href', '#');
+                }
+                downloadBtn.setAttribute('target', '_blank');
+                downloadBtn.setAttribute('rel', 'noopener noreferrer');
+                downloadBtn.className = 'result-download-btn';
+                downloadBtn.textContent = '\u{1F4BE} Unduh';
+                resultItem.appendChild(downloadBtn);
+
+                results.appendChild(resultItem);
+            });
+        }
+
+        function getErrorMessage(errorCode, platform) {
+            const errorMessages = {
+                'error.api.link.invalid': 'Link tidak valid. Pastikan URL yang dimasukkan benar.',
+                'error.api.fetch.fail': 'Gagal mengambil konten. Coba lagi nanti.',
+                'error.api.fetch.rate': 'Terlalu banyak permintaan. Tunggu beberapa saat.',
+                'error.api.content.video.unavailable': 'Video tidak tersedia atau sudah dihapus.',
+                'error.api.content.post.unavailable': 'Postingan tidak tersedia atau bersifat privat.',
+                'error.api.fetch.empty': 'Tidak ada konten yang bisa diunduh dari link ini.',
+                'error.api.service.disabled': 'Layanan untuk platform ini sedang tidak tersedia.'
+            };
+            var msg = errorMessages[errorCode] || 'Terjadi kesalahan: ' + (errorCode || 'tidak diketahui');
+            if (platform === 'Shopee') {
+                msg += ' (Shopee mungkin tidak didukung sepenuhnya oleh server. Coba platform lain.)';
+            }
+            return msg;
+        }
 
         async function processDownload() {
             const url = document.getElementById('videoUrl').value.trim();
             const btn = document.getElementById('downloadBtn');
-            const status = document.getElementById('status');
+
+            clearResults();
 
             if (!url) {
-                status.textContent = '⚠️ Masukkan link video terlebih dahulu!';
-                status.className = 'status error';
+                showStatus('&#9888;&#65039; Masukkan link terlebih dahulu!', 'error');
+                return;
+            }
+
+            const platform = detectPlatform(url);
+            if (!platform) {
+                showStatus('&#9888;&#65039; Platform tidak dikenali. Pastikan link dari TikTok, Instagram, Facebook, YouTube, Pinterest, Threads, atau Shopee.', 'error');
                 return;
             }
 
             btn.disabled = true;
-            btn.textContent = 'Mengekstrak Video...';
-            status.innerHTML = 'Mengekstrak video, mohon tunggu...';
-            status.className = 'status';
+            btn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
+
+            if (platform === 'Shopee') {
+                showStatus('<span class="loading-spinner"></span> Mencoba mengekstrak dari Shopee (eksperimental, mungkin tidak didukung)...', '');
+            } else {
+                showStatus('Mengekstrak konten dari ' + platform + ', mohon tunggu...', '');
+            }
 
             try {
+                const requestBody = buildRequestBody(url);
+
                 const response = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url })
+                    body: JSON.stringify(requestBody)
                 });
+
+                if (!response.ok) {
+                    throw new Error('Server error: ' + response.status);
+                }
 
                 const data = await response.json();
 
-                if (data.status === 'error' || data.error) {
-                    throw new Error(data.text || data.error || 'Gagal mengekstrak video');
+                if (data.status === 'error') {
+                    const errorMsg = getErrorMessage(data.error, platform);
+                    showStatus('&#10060; ' + errorMsg, 'error');
+                    return;
                 }
 
-                // Cobalt API returns 'url' for direct downloads or 'picker' for multiple
-                let downloadUrl = data.url;
-                if (data.picker && data.picker.length > 0) {
-                    downloadUrl = data.picker[0].url; // Ambil video pertama jika ada banyak
+                if (data.status === 'redirect' || data.status === 'tunnel') {
+                    if (data.url) {
+                        const format = document.getElementById('downloadFormat').value;
+                        let label = 'Klik untuk Download Video';
+                        if (format === 'audio') label = 'Klik untuk Download Audio';
+                        if (format === 'mute') label = 'Klik untuk Download Video (Tanpa Suara)';
+
+                        showStatus('&#9989; Konten siap diunduh!', 'success');
+                        showSingleDownload(data.url, label);
+                    } else {
+                        showStatus('&#10060; Link download tidak ditemukan.', 'error');
+                    }
+                    return;
                 }
 
-                if (downloadUrl) {
-                    status.innerHTML = '✅ Video siap diunduh!';
-                    status.className = 'status success';
-                    
-                    // Buat tombol download manual untuk menghindari popup blocker
-                    const link = document.createElement('a');
-                    link.href = downloadUrl;
-                    link.target = '_blank';
-                    link.className = 'download-link';
-                    link.textContent = '💾 Klik untuk Simpan Video';
-                    status.appendChild(link);
+                if (data.status === 'picker') {
+                    if (data.picker && data.picker.length > 0) {
+                        showStatus('&#9989; Ditemukan ' + data.picker.length + ' file untuk diunduh!', 'success');
+                        showPickerResults(data.picker);
+                    } else {
+                        showStatus('&#10060; Tidak ada konten yang bisa diunduh.', 'error');
+                    }
+                    return;
+                }
+
+                // Fallback for unexpected response
+                if (data.url) {
+                    showStatus('&#9989; Konten siap diunduh!', 'success');
+                    showSingleDownload(data.url, 'Klik untuk Download');
                 } else {
-                    throw new Error('Link download tidak ditemukan.');
+                    showStatus('&#10060; Format respons tidak dikenali.', 'error');
                 }
+
             } catch (error) {
-                status.textContent = '❌ Error: ' + error.message;
-                status.className = 'status error';
+                showStatus('&#10060; Error: ' + error.message, 'error');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Download Sekarang';
+                btn.innerHTML = 'Download Sekarang';
             }
         }
+
+        // Allow pressing Enter to trigger download
+        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processDownload();
+            }
+        });
     </script>
 </body>
 </html>
