@@ -9,6 +9,6 @@
     "tests": "skipped",
     "test_quality": "skipped",
     "docker_build": "skipped",
-    "summary": "No build system or tests exist for this static HTML project. Structural validation confirms: all 7 platforms listed, all Cobalt API parameters present in both frontend and worker, picker handling logic for multi-item responses, CORS in worker, format/quality selectors in UI, no-watermark toggle enabled by default, Indonesian language messages throughout."
+    "summary": "No build system or tests exist for this static HTML project. Structural validation confirms: all 7 platforms listed, all Cobalt API parameters present in both frontend and worker, picker handling logic for multi-item responses using DOM APIs (XSS-safe), origin-restricted CORS in worker, format/quality selectors in UI, no-watermark toggle connected to tiktokFullAudio param, optional COBALT_API_KEY support, Shopee marked as experimental, Indonesian language messages throughout. Code review issues from v1 all addressed."
   }
 }
