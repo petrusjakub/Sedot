@@ -388,7 +388,8 @@
     </div>
 
     <script>
-        const WORKER_URL = 'https://video-proxy-api.petrusjakub.workers.dev/';
+        // Use relative URL since the worker serves both the HTML (GET) and the API (POST)
+        const WORKER_URL = './';
 
         function detectPlatform(url) {
             const platforms = [

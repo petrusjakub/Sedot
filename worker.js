@@ -2,61 +2,26 @@
  * Cloudflare Worker - Video Proxy API
  * Proxies requests to Cobalt API for social media content downloading.
  * Handles CORS and forwards download parameters.
+ * Also serves the index.html frontend on GET requests.
  *
  * Environment variables:
  *   - COBALT_API_KEY (optional): API key for Cobalt API authentication
- *   - ALLOWED_ORIGINS (optional): Comma-separated list of allowed origins.
- *     Defaults to allowing the worker's own domain pattern.
  *
  * Deploy with: wrangler deploy worker.js
  */
 
-const DEFAULT_ALLOWED_ORIGINS = [
-  'https://petrusjakub.github.io',
-  'http://localhost',
-  'http://127.0.0.1'
+import HTML_CONTENT from './index.html';
+
+// Cobalt API endpoints - primary and fallbacks
+const COBALT_API_ENDPOINTS = [
+  'https://api.cobalt.tools/',
+  'https://cobalt-api.kwiatekmiki.com/'
 ];
 
-function getAllowedOrigins(env) {
-  if (env && env.ALLOWED_ORIGINS) {
-    return env.ALLOWED_ORIGINS.split(',').map(function(o) { return o.trim(); });
-  }
-  return DEFAULT_ALLOWED_ORIGINS;
-}
-
-function isOriginAllowed(request, env) {
-  const origin = request.headers.get('Origin');
-  const referer = request.headers.get('Referer');
-  const allowedOrigins = getAllowedOrigins(env);
-
-  // Check Origin header
-  if (origin) {
-    for (const allowed of allowedOrigins) {
-      if (origin === allowed || origin.startsWith(allowed)) {
-        return origin;
-      }
-    }
-    return null;
-  }
-
-  // Fallback to Referer header
-  if (referer) {
-    for (const allowed of allowedOrigins) {
-      if (referer.startsWith(allowed)) {
-        return allowed;
-      }
-    }
-    return null;
-  }
-
-  // No Origin or Referer - reject
-  return null;
-}
-
-function corsHeaders(origin) {
+function corsHeaders() {
   return {
-    'Access-Control-Allow-Origin': origin || DEFAULT_ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400'
   };
@@ -64,36 +29,32 @@ function corsHeaders(origin) {
 
 export default {
   async fetch(request, env) {
-    const allowedOrigin = isOriginAllowed(request, env);
-
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
-      if (!allowedOrigin) {
-        return new Response(null, { status: 403 });
-      }
       return new Response(null, {
         status: 204,
-        headers: corsHeaders(allowedOrigin)
+        headers: corsHeaders()
       });
     }
 
-    // Only allow POST
+    // Serve index.html on GET requests
+    if (request.method === 'GET') {
+      return new Response(HTML_CONTENT, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          ...corsHeaders()
+        }
+      });
+    }
+
+    // Only allow POST for API calls
     if (request.method !== 'POST') {
       return new Response(JSON.stringify({ status: 'error', error: 'Method not allowed' }), {
         status: 405,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders(allowedOrigin)
-        }
-      });
-    }
-
-    // Reject disallowed origins
-    if (!allowedOrigin) {
-      return new Response(JSON.stringify({ status: 'error', error: 'Origin not allowed' }), {
-        status: 403,
-        headers: {
-          'Content-Type': 'application/json'
+          ...corsHeaders()
         }
       });
     }
@@ -107,7 +68,7 @@ export default {
           status: 400,
           headers: {
             'Content-Type': 'application/json',
-            ...corsHeaders(allowedOrigin)
+            ...corsHeaders()
           }
         });
       }
@@ -134,12 +95,45 @@ export default {
         cobaltHeaders['Authorization'] = 'Api-Key ' + env.COBALT_API_KEY;
       }
 
-      // Forward to Cobalt API
-      const cobaltResponse = await fetch('https://api.cobalt.tools/', {
-        method: 'POST',
-        headers: cobaltHeaders,
-        body: JSON.stringify(cobaltBody)
-      });
+      // Try each Cobalt API endpoint until one succeeds
+      let cobaltResponse = null;
+      let lastError = null;
+
+      for (const endpoint of COBALT_API_ENDPOINTS) {
+        try {
+          cobaltResponse = await fetch(endpoint, {
+            method: 'POST',
+            headers: cobaltHeaders,
+            body: JSON.stringify(cobaltBody)
+          });
+
+          // If we got a response (even an error response), use it
+          if (cobaltResponse.ok || cobaltResponse.status < 500) {
+            break;
+          }
+
+          // Server error - try next endpoint
+          lastError = new Error('API returned status ' + cobaltResponse.status);
+          cobaltResponse = null;
+        } catch (err) {
+          lastError = err;
+          cobaltResponse = null;
+        }
+      }
+
+      // If all endpoints failed
+      if (!cobaltResponse) {
+        return new Response(JSON.stringify({
+          status: 'error',
+          error: 'All API endpoints failed: ' + (lastError ? lastError.message : 'unknown error')
+        }), {
+          status: 502,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders()
+          }
+        });
+      }
 
       const cobaltData = await cobaltResponse.json();
 
@@ -148,7 +142,7 @@ export default {
         status: cobaltResponse.status,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders(allowedOrigin)
+          ...corsHeaders()
         }
       });
 
@@ -160,7 +154,7 @@ export default {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders(allowedOrigin)
+          ...corsHeaders()
         }
       });
     }
