@@ -392,13 +392,13 @@
 
         function detectPlatform(url) {
             const platforms = [
-                { name: 'TikTok', pattern: /tiktok\.com/i },
-                { name: 'Instagram', pattern: /instagram\.com/i },
-                { name: 'Facebook', pattern: /(facebook\.com|fb\.watch)/i },
-                { name: 'YouTube', pattern: /(youtube\.com|youtu\.be)/i },
-                { name: 'Pinterest', pattern: /(pinterest\.com|pin\.it)/i },
-                { name: 'Threads', pattern: /threads\.net/i },
-                { name: 'Shopee', pattern: /(shopee\.co\.id|shopee\.com)/i }
+                { name: 'TikTok', pattern: /(tiktok\.com|vm\.tiktok\.com|vt\.tiktok\.com)/i },
+                { name: 'Instagram', pattern: /(instagram\.com|instagr\.am)/i },
+                { name: 'Facebook', pattern: /(facebook\.com|fb\.watch|fb\.com|m\.facebook\.com)/i },
+                { name: 'YouTube', pattern: /(youtube\.com|youtu\.be|m\.youtube\.com|youtube-nocookie\.com)/i },
+                { name: 'Pinterest', pattern: /(pinterest\.\w+|pin\.it)/i },
+                { name: 'Threads', pattern: /(threads\.net|threads\.com)/i },
+                { name: 'Shopee', pattern: /shopee\.\w+/i }
             ];
             for (const p of platforms) {
                 if (p.pattern.test(url)) return p.name;
