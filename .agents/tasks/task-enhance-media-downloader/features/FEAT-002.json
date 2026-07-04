@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "fix",
   "description": "Address review issues: disconnect no-watermark toggle fix, XSS prevention in picker rendering, origin restriction in worker, Shopee graceful handling, and Cobalt API auth support.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Fix no-watermark toggle: wire the checkbox state into buildRequestBody so it affects tiktokFullAudio parameter",
     "Fix XSS in picker thumbnails: replace innerHTML string concatenation with DOM API methods (createElement, setAttribute)",
@@ -25,5 +25,5 @@
     "Verify worker.js reads env.COBALT_API_KEY"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All 5 review issues addressed. Syntax validated with Node.js. No build/test system exists for this static project. Origin allowlist defaults to petrusjakub.github.io, localhost, and 127.0.0.1 but is configurable via ALLOWED_ORIGINS env var."
 }
