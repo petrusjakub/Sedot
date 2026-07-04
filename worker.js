@@ -583,10 +583,6 @@ const HTML_CONTENT = `<!DOCTYPE html>
                     body: JSON.stringify(requestBody)
                 });
 
-                if (!response.ok) {
-                    throw new Error('Server error: ' + response.status);
-                }
-
                 const data = await response.json();
 
                 if (data.status === 'error') {
@@ -647,8 +643,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
 // Cobalt API endpoints - primary and fallbacks
 const COBALT_API_ENDPOINTS = [
   'https://api.cobalt.tools',
-  'https://cobalt-backend.canine.tools',
-  'https://cobalt-api.hyper.lol'
+  'https://cobalt-backend.canine.tools'
 ];
 
 function corsHeaders() {
@@ -684,7 +679,7 @@ export default {
     // Only allow POST for API calls
     if (request.method !== 'POST') {
       return new Response(JSON.stringify({ status: 'error', error: 'Method not allowed' }), {
-        status: 405,
+        status: 200,
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders()
@@ -698,7 +693,7 @@ export default {
       // Validate required field
       if (!body.url) {
         return new Response(JSON.stringify({ status: 'error', error: 'URL is required' }), {
-          status: 400,
+          status: 200,
           headers: {
             'Content-Type': 'application/json',
             ...corsHeaders()
@@ -772,9 +767,9 @@ export default {
       if (!cobaltResponse) {
         return new Response(JSON.stringify({
           status: 'error',
-          error: 'Semua server sedang tidak tersedia. Coba lagi nanti.'
+          error: 'Server API sedang tidak tersedia. Silakan coba beberapa saat lagi.'
         }), {
-          status: 502,
+          status: 200,
           headers: {
             'Content-Type': 'application/json',
             ...corsHeaders()
@@ -782,11 +777,28 @@ export default {
         });
       }
 
-      const cobaltData = await cobaltResponse.json();
+      // Parse Cobalt response - handle non-JSON responses gracefully
+      let cobaltData;
+      try {
+        const responseText = await cobaltResponse.text();
+        cobaltData = JSON.parse(responseText);
+      } catch (parseErr) {
+        // Response is not valid JSON (e.g., HTML error page)
+        return new Response(JSON.stringify({
+          status: 'error',
+          error: 'Server API mengembalikan respons tidak valid. Silakan coba beberapa saat lagi.'
+        }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders()
+          }
+        });
+      }
 
-      // Return Cobalt response to frontend
+      // Return Cobalt response to frontend - ALWAYS with HTTP 200
       return new Response(JSON.stringify(cobaltData), {
-        status: cobaltResponse.status,
+        status: 200,
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders()
@@ -798,7 +810,7 @@ export default {
         status: 'error',
         error: 'Internal server error: ' + error.message
       }), {
-        status: 500,
+        status: 200,
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders()
