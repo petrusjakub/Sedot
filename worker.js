@@ -646,8 +646,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
 // Cobalt API endpoints - primary and fallbacks
 const COBALT_API_ENDPOINTS = [
-  'https://api.cobalt.tools/',
-  'https://cobalt-api.kwiatekmiki.com/'
+  'https://api.cobalt.tools',
+  'https://cobalt-api.rian.id',
+  'https://cobalt.api.timelessnesses.me'
 ];
 
 function corsHeaders() {
@@ -739,12 +740,25 @@ export default {
             body: JSON.stringify(cobaltBody)
           });
 
-          // If we got a response (even an error response), use it
-          if (cobaltResponse.ok || cobaltResponse.status < 500) {
+          // Only consider the response usable if status < 400 (success)
+          // or if the response body has a valid Cobalt JSON format (has 'status' field)
+          if (cobaltResponse.status < 400) {
             break;
           }
 
-          // Server error - try next endpoint
+          // For 4xx/5xx responses, try to parse body to check if it's a valid Cobalt response
+          try {
+            const cloned = cobaltResponse.clone();
+            const responseBody = await cloned.json();
+            if (responseBody && typeof responseBody.status === 'string') {
+              // Valid Cobalt error response (e.g., rate-limit, invalid URL) - use it
+              break;
+            }
+          } catch (parseErr) {
+            // Could not parse as JSON or no 'status' field - not a valid Cobalt response
+          }
+
+          // Not a usable response (e.g., 405, 403 from wrong endpoint) - try next
           lastError = new Error('API returned status ' + cobaltResponse.status);
           cobaltResponse = null;
         } catch (err) {
